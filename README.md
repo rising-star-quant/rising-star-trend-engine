@@ -27,30 +27,31 @@ Autonomous, quantitative trend engine designed to identify and track Mid-Cap gro
 import yfinance as yf
 import pandas as pd
 
-# 2. הגדרת רשימת מניות לבדיקה ראשונית (Proof of Concept)
+# רשימת המניות לבדיקה
 tickers = ['CRWD', 'PLTR', 'KKR', 'DELL', 'SMCI']
 
-print("Fetching data from Wall Street...")
+print("Fetching data and calculating risk metrics...")
 
-# 3. שליפת נתונים וחישוב ממוצע נע 50 (MA50)
 results = []
 for ticker in tickers:
     stock = yf.Ticker(ticker)
-    df = stock.history(period='6mo') # שימוש ב-6 חודשים (תקני ומדויק לחישוב MA50)
+    df = stock.history(period='6mo')
     
     if not df.empty and len(df) >= 50:
         current_price = df['Close'].iloc[-1]
         ma50 = df['Close'].rolling(window=50).mean().iloc[-1]
-        is_above_ma50 = current_price > ma50
+        
+        # חישוב Stop Loss אוטומטי (שמרני: הנמכה של 8% ממחיר הסגירה או תמיכת MA50, הנמוך מבניהם או קטיעה קשיחה של 8%)
+        stop_loss_price = round(current_price * 0.92, 2) # 8% מתחת למחיר הנוכחי
         
         results.append({
             'Ticker': ticker,
             'Current Price ($)': round(current_price, 2),
             'MA50 ($)': round(ma50, 2),
-            'Above MA50': 'Yes' if is_above_ma50 else 'No'
+            'Stop Loss ($)': stop_loss_price,
+            'Above MA50': 'Yes' if current_price > ma50 else 'No'
         })
 
-# 4. הצגת התוצאות
 results_df = pd.DataFrame(results)
-print("\n--- Rising Star POC Data Verification ---")
+print("\n--- Rising Star POC with Risk Management (Stop Loss) ---")
 display(results_df)
