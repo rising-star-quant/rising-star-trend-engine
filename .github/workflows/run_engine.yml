@@ -24,6 +24,7 @@ jobs:
 
       - name: Run Trend Engine Script
         env:
+          PYTHONUNBUFFERED: "1"  # <-- זה השורה שגורמת ללוגים להופיע מיד!
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
